@@ -38,11 +38,13 @@ spec:
             secretKeyRef:
               name: netbox-secrets
               key: db_password
+        - name: PGDATA
+          value: "/var/lib/postgresql/data"
         ports:
         - containerPort: 5432
         volumeMounts:
         - name: pgdata
-          mountPath: /var/lib/postgresql/data
+          mountPath: /var/lib/postgresql
   volumeClaimTemplates:
   - metadata:
       name: pgdata
