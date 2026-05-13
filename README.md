@@ -48,3 +48,9 @@ To verify the Horizontal Pod Autoscaler (HPA) behaves correctly under user traff
 # Monitor the scaling in a separate terminal: kubectl get hpa -n netbox -w
 ./scripts/run-loadtest.sh
 ```
+
+### Step 5: Teardown Infrastructure
+To prevent ongoing cloud billing, the infrastructure can be completely destroyed with a single command. This will asynchronously delete the AKS cluster, the resource group, and all dynamically provisioned managed disks.
+```bash
+./scripts/teardown-aks.sh
+```
