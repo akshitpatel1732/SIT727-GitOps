@@ -26,6 +26,7 @@ spec:
       labels:
         app: netbox-web
     spec:
+      enableServiceLinks: false
       containers:
       - name: netbox
         image: netboxcommunity/netbox:v4.6
