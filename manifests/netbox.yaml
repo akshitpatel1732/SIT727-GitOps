@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: netbox-web
+  namespace: netbox
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: netbox-web
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: netbox-web
+  namespace: netbox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: netbox-web
+  template:
+    metadata:
+      labels:
+        app: netbox-web
+    spec:
+      containers:
+      - name: netbox
+        image: netboxcommunity/netbox:v4.6
+        env:
+        - name: DB_HOST
+          value: "postgres"
+        - name: DB_NAME
+          value: "netbox"
+        - name: DB_USER
+          value: "netbox"
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: netbox-secrets
+              key: db_password
+        - name: REDIS_HOST
+          value: "redis"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: netbox-secrets
+              key: redis_password
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: netbox-secrets
+              key: secret_key
+        - name: ALLOWED_HOSTS
+          value: "*"
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: netbox-web-hpa
+  namespace: netbox
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: netbox-web
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
