@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
       - name: postgres
-        image: postgres:18-alpine
+        image: postgres:17-alpine
         env:
         - name: POSTGRES_DB
           value: "netbox"
@@ -38,13 +38,11 @@ spec:
             secretKeyRef:
               name: netbox-secrets
               key: db_password
-        - name: PGDATA
-          value: "/var/lib/postgresql/data"
         ports:
         - containerPort: 5432
         volumeMounts:
         - name: pgdata
-          mountPath: /var/lib/postgresql
+          mountPath: /var/lib/postgresql/data
   volumeClaimTemplates:
   - metadata:
       name: pgdata
