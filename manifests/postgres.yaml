@@ -38,6 +38,9 @@ spec:
             secretKeyRef:
               name: netbox-secrets
               key: db_password
+        # Force Postgres to initialize inside a subfolder to dodge lost+found
+        - name: PGDATA
+          value: "/var/lib/postgresql/data/pgdata"
         ports:
         - containerPort: 5432
         volumeMounts:
