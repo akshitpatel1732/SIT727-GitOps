@@ -54,6 +54,15 @@ spec:
             secretKeyRef:
               name: netbox-secrets
               key: secret_key
+        - name: SUPERUSER_NAME
+          value: "admin"
+        - name: SUPERUSER_EMAIL
+          value: "admin@example.com"
+        - name: SUPERUSER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: netbox-secrets
+              key: superuser_password
         - name: ALLOWED_HOSTS
           value: "*"
         ports:
