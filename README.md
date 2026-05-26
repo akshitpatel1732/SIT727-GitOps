@@ -10,6 +10,28 @@ This repository contains the infrastructure-as-code and GitOps deployment manife
 * **Continuous Delivery:** ArgoCD (GitOps methodology)
 * **Testing:** Native Bash/cURL (Zero-dependency simulated load to demonstrate horizontal scaling)
 
+## Kubernetes Features Implemented
+This project goes beyond basic container hosting by utilizing a wide array of advanced Kubernetes features and resources:
+
+### Core Workloads & Networking
+* **Deployments:** Used for the stateless NetBox web frontend, ensuring declarative updates and self-healing.
+* **StatefulSets:** Used for PostgreSQL and Redis to guarantee stable network identities and ordered, graceful deployment/scaling, which is critical for databases.
+* **Services (LoadBalancer & ClusterIP):** Internal `ClusterIP` services route traffic securely between the web pods and the databases. An Azure `LoadBalancer` service is dynamically provisioned to expose the NetBox UI to the public internet.
+
+### Configuration & Security
+* **Secrets:** Sensitive credentials (database passwords, Django secret keys) are managed via Kubernetes Secrets, injected into pods as environment variables, and strictly kept out of version control.
+* **Environment Variable Injection Control:** Explicitly disabled legacy Docker service link injection (`enableServiceLinks: false`) to prevent parsing errors within the Django application startup sequence.
+
+### Resource Management & Elasticity
+* **Resource Requests & Limits:** Explicit CPU and Memory boundaries (`requests` and `limits`) are defined for all pods. This prevents the "noisy neighbor" problem and allows the Kubernetes scheduler to make intelligent node placement decisions.
+* **Horizontal Pod Autoscaler (HPA):** Implemented an HPA targeting the NetBox web deployment. It monitors CPU utilization and dynamically scales the replica count (from 1 up to 5) to handle traffic spikes, demonstrating cloud elasticity.
+
+### Storage Persistence
+* **PersistentVolumeClaims (PVCs):** Used to request durable storage for the databases.
+* **StorageClasses (`managed-csi`):** Integrated with Azure's native Container Storage Interface to dynamically provision Azure Managed Disks, ensuring database survival across pod restarts and node failures. Sub-path mounting (`PGDATA`) was utilized to bypass cloud filesystem quirks (like `lost+found` directories).
+
+### Advanced Orchestration (GitOps)
+* **Custom Resource Definitions (CRDs):** Utilized ArgoCD's `Application` CRD to define the GitOps pipeline. This tells the cluster to continuously poll this GitHub repository and autonomously reconcile the live cluster state with the declared Git state.
 ## Repository Structure
 
 * `/manifests`: The declarative Kubernetes YAML files. **This directory is actively monitored by ArgoCD.** Any changes pushed here are automatically reconciled in the cluster.
