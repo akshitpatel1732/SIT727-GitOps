@@ -22,6 +22,8 @@ while [ -z "$ARGOCD_IP" ] || [ "$ARGOCD_IP" == "pending" ]; do
   fi
 done
 
+ARGOCD_PASS=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+
 echo "ArgoCD setup complete. It is now watching the Git repository!"
 echo "🌐 ArgoCD UI: https://$ARGOCD_IP (Accept self-signed cert)"
 echo "👤 Username:  admin"
